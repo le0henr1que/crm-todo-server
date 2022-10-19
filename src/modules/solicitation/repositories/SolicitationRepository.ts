@@ -10,8 +10,8 @@ class SolicitationRepository {
     return
   }
 
-  static async list(): Promise<Solicitation[]> {
-    const solicitation = await SolicitationSchema.find();
+  static async listSolicitationWaiting(limit:number, Skip:number, Status:string): Promise<Solicitation[]> {
+    const solicitation = await SolicitationSchema.find({status:Status}).skip(Skip).limit(limit);
     return solicitation;
   }
 
@@ -24,6 +24,12 @@ class SolicitationRepository {
     const solicitation = await SolicitationSchema.findByIdAndUpdate({'_id': _id}, {"status": status});
     return solicitation;
   }
+
+  static async mongoCount(Status:string): Promise<number> {
+    const solicitation = await SolicitationSchema.find({status:Status}).count();
+    return solicitation;
+  }
+
 }
 
 
