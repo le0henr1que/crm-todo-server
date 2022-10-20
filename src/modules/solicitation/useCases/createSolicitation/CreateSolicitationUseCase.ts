@@ -54,14 +54,14 @@ class CreateSolicitationUseCase {
       socket.emit('countElements', countElements)
       socket.emit("list", solicitation)
 
-      // socket.on("list", async (paginationNumber) => {
-      //   const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, paginationNumber, "Aguardando")).reverse()
-      //   const countElements = await (await SolicitationRepository.mongoCount('Aguardando'))
-      //   socket.emit('countElements', countElements)
-      //   socket.emit("list", solicitation)
-      //   return 
+      socket.on("listNextPagination", async (paginationNumber) => {
+     
+        var page = 6 * paginationNumber ;
 
-      // })
+        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, page, "Aguardando")).reverse()
+        socket.emit("emitNextPage", solicitation)
+        return
+      })
 
       // socket.emit("listId", solicitation)
       
