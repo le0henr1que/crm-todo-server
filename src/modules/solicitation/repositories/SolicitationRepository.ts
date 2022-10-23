@@ -11,7 +11,14 @@ class SolicitationRepository {
   }
 
   static async listSolicitationWaiting(limit:number, Skip:number, Status:string): Promise<Solicitation[]> {
-    const solicitation = await SolicitationSchema.find({status:Status}).skip(Skip).limit(limit);
+    // const solicitation = await SolicitationSchema.find({status:Status}).sort( { amount: -1 } ).skip(Skip).limit(limit);
+    const solicitation = await SolicitationSchema.aggregate([
+      {$match : {status:Status} },
+      {$sort : {"created_at" : -1}},
+      {$skip : Skip},
+      {$limit : limit},
+      // {$reverseArray : { null}},
+ ])
     return solicitation;
   }
 

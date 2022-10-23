@@ -21,21 +21,35 @@ class CreateSolicitationUseCase {
       logger.info(`Socket conectado: ${socket.id}`);
 
       const listSolicitation = async () => {
-        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, 0, "Aguardando")).reverse()
+        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, 0, "Aguardando"))
         socket.broadcast.emit("list", solicitation)
+        const countElements = await (await SolicitationRepository.mongoCount('Aguardando'))
+        socket.emit('countElements', countElements)
       }
+      listSolicitation()
+
+      const countSolicitationPagination = async () => {
+        const countElements = await (await SolicitationRepository.mongoCount('Aguardando'))
+        socket.emit('countElements', countElements)
+        listSolicitation()
+      }
+      countSolicitationPagination()
+      
       //Create
       socket.on("create", async ({status, name, subject}) => {
         await SolicitationRepository.create({name,  
         status, subject})
-        listSolicitation()
+        console.info("Solicitation created")
+        await listSolicitation()
+        await countSolicitationPagination()
       })
       //FindBy for ID
       socket.on("solicitationId", async (_id) => {
         const solicitationId = await SolicitationRepository.findById(_id)
         socket.emit("listId", solicitationId)
 
-        listSolicitation()
+        await listSolicitation()
+        await countSolicitationPagination()
 
         return
 
@@ -43,22 +57,17 @@ class CreateSolicitationUseCase {
       //Update for ID
       socket.on("update", async (_id, status) => {
         await SolicitationRepository.update(_id, status)
-        listSolicitation()
+        await listSolicitation()
+        await countSolicitationPagination()
         return 
 
       })
 
-      //List All for ID
-      const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, 0, "Aguardando")).reverse()
-      const countElements = await (await SolicitationRepository.mongoCount('Aguardando'))
-      socket.emit('countElements', countElements)
-      socket.emit("list", solicitation)
+ 
 
       socket.on("listNextPagination", async (paginationNumber) => {
-     
         var page = 6 * paginationNumber ;
-
-        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, page, "Aguardando")).reverse()
+        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, page, "Aguardando"))
         socket.emit("emitNextPage", solicitation)
         return
       })
