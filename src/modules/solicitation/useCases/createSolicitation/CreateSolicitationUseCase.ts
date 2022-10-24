@@ -19,37 +19,46 @@ class CreateSolicitationUseCase {
 
       logger.info("Web socket connection created");
       logger.info(`Socket conectado: ${socket.id}`);
+      // mongoCountSubject(subject:string)
 
-      const listSolicitation = async () => {
-        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, 0, "Aguardando"))
-        socket.broadcast.emit("list", solicitation)
-        const countElements = await (await SolicitationRepository.mongoCount('Aguardando'))
-        socket.emit('countElements', countElements)
+      const listSolicitationStatus = async (SocketCountEmitIn:string, SocketEmitIn: string, status:string, subject:string) => {
+        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, 0,  status, subject))
+        socket.broadcast.emit('list', solicitation)
+        socket.emit(SocketEmitIn, solicitation)
+        const countElements = await (await SolicitationRepository.mongoCountStatus(status, subject))
+        socket.broadcast.emit(SocketCountEmitIn, countElements)
+        
       }
-      listSolicitation()
-
-      const countSolicitationPagination = async () => {
-        const countElements = await (await SolicitationRepository.mongoCount('Aguardando'))
-        socket.emit('countElements', countElements)
-        listSolicitation()
-      }
-      countSolicitationPagination()
+      
+      listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
+      listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
+      listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
+      
+      socket.on("handleFilter", async (countIn, status, subject) =>{
+        console.info("listed in : "+status+" and " +subject )
+        listSolicitationStatus(countIn, "list", status, subject)
+      })
       
       //Create
       socket.on("create", async ({status, name, subject}) => {
         await SolicitationRepository.create({name,  
         status, subject})
-        console.info("Solicitation created")
-        await listSolicitation()
-        await countSolicitationPagination()
+        
+        listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
+        listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
+        listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
+        // await countSolicitationPagination()
       })
+
       //FindBy for ID
       socket.on("solicitationId", async (_id) => {
         const solicitationId = await SolicitationRepository.findById(_id)
         socket.emit("listId", solicitationId)
 
-        await listSolicitation()
-        await countSolicitationPagination()
+        listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
+        listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
+        listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
+        // await countSolicitationPagination()
 
         return
 
@@ -57,8 +66,10 @@ class CreateSolicitationUseCase {
       //Update for ID
       socket.on("update", async (_id, status) => {
         await SolicitationRepository.update(_id, status)
-        await listSolicitation()
-        await countSolicitationPagination()
+        listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
+        listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
+        listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
+        // await countSolicitationPagination()
         return 
 
       })
@@ -67,7 +78,7 @@ class CreateSolicitationUseCase {
 
       socket.on("listNextPagination", async (paginationNumber) => {
         var page = 6 * paginationNumber ;
-        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, page, "Aguardando"))
+        const solicitation = await (await SolicitationRepository.listSolicitationWaiting(6, page, "Aguardando", "AllContent"))
         socket.emit("emitNextPage", solicitation)
         return
       })

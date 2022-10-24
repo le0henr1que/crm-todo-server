@@ -10,16 +10,24 @@ class SolicitationRepository {
     return
   }
 
-  static async listSolicitationWaiting(limit:number, Skip:number, Status:string): Promise<Solicitation[]> {
-    // const solicitation = await SolicitationSchema.find({status:Status}).sort( { amount: -1 } ).skip(Skip).limit(limit);
-    const solicitation = await SolicitationSchema.aggregate([
-      {$match : {status:Status} },
-      {$sort : {"created_at" : -1}},
-      {$skip : Skip},
-      {$limit : limit},
-      // {$reverseArray : { null}},
- ])
-    return solicitation;
+  static async listSolicitationWaiting(limit:number, Skip:number, Status:string,  subject:string): Promise<Solicitation[]> {
+      if(subject == "AllContent"){
+        const solicitation = await SolicitationSchema.aggregate([
+        {$match : {status:Status} },
+        {$sort : {"created_at" : -1}},
+        {$skip : Skip},
+        {$limit : limit},
+      ])
+      return solicitation;
+      }else{
+        const solicitation = await SolicitationSchema.aggregate([
+          {$match : {status:Status, subject:subject} },
+          {$sort : {"created_at" : -1}},
+          {$skip : Skip},
+          {$limit : limit},
+      ])
+      return solicitation;
+    }
   }
 
   static async findById(_id:String): Promise<Solicitation[]> {
@@ -27,14 +35,19 @@ class SolicitationRepository {
     return solicitation;
   }
   
-  static async update(_id:String, status:String): Promise<void> {
-    const solicitation = await SolicitationSchema.findByIdAndUpdate({'_id': _id}, {"status": status});
+  static async update(_id:String, Status:String): Promise<void> {
+    const solicitation = await SolicitationSchema.findByIdAndUpdate({'_id': _id}, {"status": Status});
     return solicitation;
   }
 
-  static async mongoCount(Status:string): Promise<number> {
-    const solicitation = await SolicitationSchema.find({status:Status}).count();
-    return solicitation;
+  static async mongoCountStatus(Status:string, subject:string ): Promise<number> {
+    if(subject == "AllContent"){
+      const solicitation = await SolicitationSchema.find({status:Status}).count();
+      return solicitation;
+    }else{
+      const solicitation = await SolicitationSchema.find({status:Status, subject:subject}).count();
+      return solicitation;
+    }
   }
 
 }

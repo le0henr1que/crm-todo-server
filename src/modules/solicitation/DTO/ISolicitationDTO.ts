@@ -3,3 +3,4 @@ interface ISolicitationDTO {
   name: string;
   subject: string;
 }
+

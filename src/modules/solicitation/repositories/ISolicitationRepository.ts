@@ -4,12 +4,12 @@ import { Solicitation } from "../entities/SolicitationSchema";
 export interface ISolicitationRepository {
  create({status, name, subject}: ISolicitationDTO): Promise<void>;
 
- listSolicitationWaiting(limit:number, Skip:Number): Promise<Solicitation[]>;
+ listSolicitationWaiting(limit:number, Skip:number, Status:string, subject:string): Promise<Solicitation[]>;
 
  findById(_id:String): Promise<Solicitation[]>;
 
- update(_id:String, status:String): Promise<void>;
+ update(_id:String, Status:String): Promise<void>;
 
- mongoCount(): Promise<number>
+ mongoCount(Status:string, subject:string): Promise<number>
 
 }
