@@ -1,7 +1,7 @@
 import { connection } from "mongoose";
 import { app } from "./app";
 import { connectToMongoDb } from "./database/mongo";
-import { CreateSolicitationUseCase } from "./modules/solicitation/useCases/createSolicitation/CreateSolicitationUseCase";
+import { CreateSolicitationUseCase } from "./socket";
 import logger from "./utils/logger";
 
 const PORT = process.env.PORT || 3000;
@@ -12,6 +12,8 @@ const createServer = async () => {
   const server = app.listen(PORT, () => {
     logger.info(`Running at ${PORT}`);
   })
+
+
 
   new CreateSolicitationUseCase(server);
 

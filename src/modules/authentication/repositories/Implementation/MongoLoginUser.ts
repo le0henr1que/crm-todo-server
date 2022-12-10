@@ -1,4 +1,4 @@
-import {Solicitation, SolicitationSchema} from "../../../../modules/solicitation/entities/SolicitationSchema";
+import { User, UserSchema } from "../../../user/entities/UserSchema";
 import { ILoginUser } from "../ILoginUser";
 
 

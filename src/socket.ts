@@ -1,8 +1,12 @@
-import { Server } from "socket.io";
+import { Server} from "socket.io";
+import {verify} from 'jsonwebtoken';
+
 import http from 'http';
-import environmentKeys from "../../../../constants/tech/environmentKeys";
-import logger from "../../../../utils/logger";
-import { SolicitationRepository } from "../../repositories/SolicitationRepository";
+import environmentKeys from "./constants/tech/environmentKeys";
+import logger from "./utils/logger";
+import { SolicitationRepository } from "./modules/solicitation/repositories/SolicitationRepository";
+import { jwtModule } from "./utils/Config/Auth"
+
 
 class CreateSolicitationUseCase {
   private _io: Server;
@@ -14,7 +18,26 @@ class CreateSolicitationUseCase {
       }
     }) // servidor e configuração;
 
-    this._io.on("connection", async (socket) => {
+    
+    this._io.use(function(socket, next){
+
+        const { secret, expireIn } = jwtModule
+
+        console.log(socket.handshake.query.token)
+        if (socket.handshake.query && socket.handshake.query.token){
+        verify(socket.handshake.query.token, secret, function(err, decoded) {
+            if (err) return next(new Error('Authentication error'));
+            socket.decoded = decoded;
+            console.log("autenticado")
+            next();
+
+        });
+        }
+        else {
+            next(new Error('Authentication error'));
+            console.log("Não autenticado")
+        }    
+    }).on("connection", async (socket) => {
      
 
       logger.info("Web socket connection created");

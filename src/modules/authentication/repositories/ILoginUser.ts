@@ -1,6 +1,5 @@
-// import { User } from "../../../user/entities/UserSchema";
-// import {Solicitation, SolicitationSchema} from "/../../../modules/solicitation/entities/SolicitationSchema";
+import { User } from "../../user/entities/UserSchema";
 
-// export interface ILoginUser{
-//     findEmail(email:string): Promise<any>;
-// }
+export interface ILoginUser{
+    findEmail(email:string): Promise<any>;
+}

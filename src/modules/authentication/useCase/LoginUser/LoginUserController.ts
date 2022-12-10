@@ -1,22 +1,21 @@
 import { Request, Response } from "express";
-import { CreateUserUseCase } from "./RegisterNewUserUseCase";
+import { LoginUseCase } from "./LoginUseCase";
 
-export class CreateUserController {
+export class LoginController {
 
     constructor(
-        private createCarUseCase: CreateUserUseCase,
+        private loginUseCase: LoginUseCase,
     ){}
 
     async handle(request: Request, response:Response): Promise<Response>{
-        const {name, email, password} = request.body;
+        const { email, password} = request.body;
         
         try{
-            await this.createCarUseCase.execute({
-                name,
+            const user = await this.loginUseCase.execute({
                 email,
                 password
             })
-            return response.status(201).send()
+            return response.status(200).send({user})
 
         }catch(err){
             console.log(err)
