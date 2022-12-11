@@ -62,16 +62,7 @@ class CreateSolicitationUseCase {
         listSolicitationStatus(countIn, "list", status, subject)
       })
       
-      //Create
-      socket.on("create", async ({status, name, subject}) => {
-        await SolicitationRepository.create({name,  
-        status, subject})
-        
-        listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
-        listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
-        listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
-        // await countSolicitationPagination()
-      })
+    
 
       //FindBy for ID
       socket.on("solicitationId", async (_id) => {
@@ -109,7 +100,18 @@ class CreateSolicitationUseCase {
       // socket.emit("listId", solicitation)
       
     })
-
+  //Create
+  this._io.on("connection", async (socket) => {
+      socket.on("create", async ({status, name, subject}) => {
+        await SolicitationRepository.create({name,  
+        status, subject})
+        
+        // listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
+        // listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
+        // listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
+        // await countSolicitationPagination()
+      })
+    })
   }
 }
 
