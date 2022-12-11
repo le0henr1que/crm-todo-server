@@ -15,7 +15,9 @@ class CreateSolicitationUseCase {
       cors: {
         origin: environmentKeys.SOCKET_CLIENT_SERVER,
         methods: ["GET", "POST", "PUT", "DELETE"]      
-      }
+      }, 
+      pingTimeout:200000
+      
     }) // servidor e configuração;
 
     
@@ -88,7 +90,15 @@ class CreateSolicitationUseCase {
 
       })
 
- 
+      socket.on("create", async ({status, name, subject}) => {
+        await SolicitationRepository.create({name,  
+        status, subject})
+        
+        listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
+        listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
+        listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
+        // await countSolicitationPagination()
+      })
 
       socket.on("listNextPagination", async (paginationNumber) => {
         var page = 6 * paginationNumber ;
@@ -98,20 +108,10 @@ class CreateSolicitationUseCase {
       })
 
       // socket.emit("listId", solicitation)
-      
+      // socket.disconnect();
     })
-  //Create
-  this._io.on("connection", async (socket) => {
-      socket.on("create", async ({status, name, subject}) => {
-        await SolicitationRepository.create({name,  
-        status, subject})
-        
-        // listSolicitationStatus("countElements", "list", "Aguardando", "AllContent")
-        // listSolicitationStatus("CountComputer", "list","Aguardando", "Computador")
-        // listSolicitationStatus("ContPhone", "list", "Aguardando", "Celular")
-        // await countSolicitationPagination()
-      })
-    })
+  
+ 
   }
 }
 
